@@ -2,6 +2,9 @@ import random
 import pyproj
 import boto3
 import json
+import rasterio
+import numpy as np
+import geopandas as gpd
 from datetime import datetime, timedelta
 from botocore.client import Config
 from botocore import UNSIGNED
@@ -123,3 +126,34 @@ def get_2022_timestamps():
             timestamps_2022.append(timestamp)
 
     return timestamps_2022
+
+def create_empty_h8_mask():
+    """
+    Create an empty raster with the same extent as the aoi 
+    """
+    if not os.path.exists("data/himawari8/empty_mask_h8_aoi_updated.tif"):
+        # read aoi
+        aoi_h8 = gpd.read_file("02_input_data/aoi_h8_updated.geojson")
+
+
+        # mask the raster with aoi extent: take a sample file from himawari8
+        with rasterio.open('data/himawari8/sample_data_B05_20220101_004000.tif') as src:
+            masked_raster, masked_transform = rasterio.mask.mask(src, aoi_h8["geometry"], crop=True)
+            masked_meta = src.meta
+
+        masked_meta.update({"driver": "GTiff",
+                        "height": masked_raster.shape[1],
+                        "width": masked_raster.shape[2],
+                        "transform": masked_transform})
+
+        # create an empty raster similar to masked raster
+        masked_empty_raster = np.zeros_like(masked_raster)
+        masked_empty_raster[1,:,:] = masked_raster[1,:,:]
+
+        with rasterio.open("data/himawari8/empty_mask_h8_aoi_updated.tif", "w", **masked_meta) as dest:
+            dest.write(masked_empty_raster)
+
+        return
+    else:
+        print("Empty raster already exists")
+    return
