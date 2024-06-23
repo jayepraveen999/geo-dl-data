@@ -4,8 +4,10 @@ import rasterio
 import json
 import numpy as np
 import logging as log
+import os
 
-log_file =  f"data/himawari8/updated_no_data_labels_2022.txt"  # Path to the log file
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/04_pre_processing/updated_no_data_labels_2022.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,

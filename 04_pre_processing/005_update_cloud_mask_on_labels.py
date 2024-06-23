@@ -4,7 +4,9 @@ import os
 import glob
 import json
 import logging as log
-log_file = f"data/himawari8/update_cloud_mask_on_labels_2022.txt"  # Path to the log file
+
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/04_pre_processing/update_cloud_mask_on_labels_2022.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,

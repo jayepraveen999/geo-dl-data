@@ -227,7 +227,7 @@ if __name__ == '__main__':
 
 
     create_empty_h8_mask()
-    EMPTY_RASTER = rasterio.open('reprocess_data_2/input_data/himawari8/empty_mask_h8_aoi_updated.tif')
+    EMPTY_RASTER = rasterio.open('data/himawari8/empty_mask_h8_aoi_updated.tif')
     WIDTH = EMPTY_RASTER.width
     HEIGHT = EMPTY_RASTER.height
     COUNT = 1

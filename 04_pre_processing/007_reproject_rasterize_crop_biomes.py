@@ -6,21 +6,34 @@ from rasterio import features
 import yaml
 import os
 from utils import get_h8_proj4_string
+import logging as log
+
+
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/04_pre_processing/reproject_rasterize_crop_biomes.txt"  # Path to the log file
+
+log.basicConfig(
+    filename=log_file,
+    level=log.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+
+)
 # get AOI from CONFIG
 # Load the configuration files
 with open("config/fire_labels_auth.yml", 'r') as stream:
     try:
         CONFIG = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
-        print(exc)
+        log.info(exc)
 
 def clip_biomes():
     
-    if not os.path.exists("reprocess_data_2/input_data/auxiliary_data/biomes/biomes_2017/biomes_2017_aoi.geojson"):
-        print("Clipping biomes to AOI")
+    if not os.path.exists("03_aux_data/biomes/biomes_2017_aoi.geojson"):
+        log.info("Clipping biomes to AOI")
         WKT = CONFIG['AOI_WKT']
         # read full biomes shapefile
-        biomes = gpd.read_file("reprocess_data_2/input_data/auxiliary_data/biomes/biomes_2017/Ecoregions2017.shp")
+        biomes = gpd.read_file("03_aux_data/biomes/Ecoregions2017.shp")
 
         # clip biomes to AOI
         polygon = loads(WKT)
@@ -28,10 +41,10 @@ def clip_biomes():
         biomes_aoi = gpd.clip(biomes, aoi_gdf)
 
         # save clipped biomes
-        biomes_aoi.to_file("reprocess_data_2/input_data/auxiliary_data/biomes/biomes_2017/biomes_2017_aoi.geojson", driver='GeoJSON')
+        biomes_aoi.to_file("03_aux_data/biomes/biomes_2017_aoi.geojson", driver='GeoJSON')
     else:
-        print(" Clipped file already exists")
-        biomes_aoi = gpd.read_file("reprocess_data_2/input_data/auxiliary_data/biomes/biomes_2017/biomes_2017_aoi.geojson")
+        log.info(" Clipped file already exists")
+        biomes_aoi = gpd.read_file("03_aux_data/biomes/biomes_2017_aoi.geojson")
 
     return biomes_aoi
 
@@ -45,7 +58,7 @@ if __name__ == '__main__':
     biomes_aoi_geosh8 = biomes_aoi.to_crs(get_h8_proj4_string())
 
     # rasterize biomes
-    EMPTY_RASTER = rasterio.open("reprocess_data_2/input_data/himawari8/empty_mask_h8_aoi_updated.tif")
+    EMPTY_RASTER = rasterio.open("data/himawari8/empty_mask_h8_aoi_updated.tif")
     WIDTH = EMPTY_RASTER.width
     HEIGHT = EMPTY_RASTER.height
     COUNT = EMPTY_RASTER.count
@@ -54,7 +67,7 @@ if __name__ == '__main__':
 
     raster_array = np.zeros((HEIGHT, WIDTH), dtype=np.uint8)
 
-    with rasterio.open(f"reprocess_data_2/input_data/auxiliary_data/biomes/biomes_2017/biomes_2017_aoi_reprojected_rasterized.tif", "w", driver='GTiff', 
+    with rasterio.open(f"data/aux_data/biomes/biomes_2017_aoi_reprojected_rasterized.tif", "w", driver='GTiff', 
             width=WIDTH, height=HEIGHT, count=COUNT, 
             dtype=rasterio.uint8, 
             crs=CRS, 
@@ -70,4 +83,4 @@ if __name__ == '__main__':
         # used as space mask
         dest.write(EMPTY_RASTER.read(2),indexes=2)
 
-    print("Successfully clipped, reprojected and rasterized biomes shapefile")
+    log.info("Successfully clipped, reprojected and rasterized biomes shapefile")

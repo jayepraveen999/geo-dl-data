@@ -7,7 +7,9 @@ from scipy.ndimage import label, generate_binary_structure
 from scipy.ndimage import label, generate_binary_structure, find_objects
 from scipy.signal import correlate2d
 import logging as log
-log_file = f"data/himawari8/apply_shift_ahi_labels_2022.txt"  # Path to the log file
+
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/04_pre_processing/apply_shift_ahi_labels_2022.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,

@@ -8,7 +8,9 @@ import json
 import glob
 import os
 import logging as log
-log_file = "reproject_crop_clouds.txt"  # Path to the log file
+
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/04_pre_processing/reproject_crop_clouds.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,
@@ -55,7 +57,7 @@ def main(cloud_data, timestamp, child_timestamp):
 
 if __name__ == "__main__":
 
-    EMPTY_RASTER = rasterio.open('reprocess_data_2/input_data/himawari8/sample_data_B05_20220101_004000.tif')
+    EMPTY_RASTER = rasterio.open('data/himawari8/sample_data_B05_20220101_004000.tif')
     WIDTH = EMPTY_RASTER.width
     HEIGHT = EMPTY_RASTER.height
     COUNT = 3

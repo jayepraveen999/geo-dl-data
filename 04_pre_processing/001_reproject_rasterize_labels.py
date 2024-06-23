@@ -8,7 +8,8 @@ from shapely.geometry import shape
 from rasterio.features import rasterize
 from utils import get_h8_proj4_string
 
-log_file = "rasterize_labels.txt"  # Path to the log file
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/04_pre_processing/rasterize_labels.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,
@@ -20,13 +21,13 @@ def create_empty_h8_mask():
     """
     Create an empty raster with the same extent as the aoi 
     """
-    if not os.path.exists("reprocess_data_2/input_data/himawari8/empty_mask_h8_aoi_updated.tif"):
+    if not os.path.exists("data/himawari8/empty_mask_h8_aoi_updated.tif"):
         # read aoi
         aoi_h8 = gpd.read_file("02_input_data/aoi_h8_updated.geojson")
 
 
         # mask the raster with aoi extent: take a sample file from himawari8
-        with rasterio.open('reprocess_data_2/input_data/himawari8/sample_data_B05_20220101_004000.tif') as src:
+        with rasterio.open('data/himawari8/sample_data_B05_20220101_004000.tif') as src:
             masked_raster, masked_transform = rasterio.mask.mask(src, aoi_h8["geometry"], crop=True)
             masked_meta = src.meta
 
@@ -39,7 +40,7 @@ def create_empty_h8_mask():
         masked_empty_raster = np.zeros_like(masked_raster)
         masked_empty_raster[1,:,:] = masked_raster[1,:,:]
 
-        with rasterio.open("reprocess_data_2/input_data/himawari8/empty_mask_h8_aoi_updated.tif", "w", **masked_meta) as dest:
+        with rasterio.open("data/himawari8/empty_mask_h8_aoi_updated.tif", "w", **masked_meta) as dest:
             dest.write(masked_empty_raster)
 
         return
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     ahi_data_unique_dates = ahi_data["date"].unique()
     log.info(f"Separated AHI and NON-AHI labels")
 
-    EMPTY_RASTER = rasterio.open('reprocess_data_2/input_data/himawari8/empty_mask_h8_aoi_updated.tif')
+    EMPTY_RASTER = rasterio.open('data/himawari8/empty_mask_h8_aoi_updated.tif')
     WIDTH = EMPTY_RASTER.width
     HEIGHT = EMPTY_RASTER.height
     COUNT = EMPTY_RASTER.count
