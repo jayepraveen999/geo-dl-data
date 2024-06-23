@@ -27,7 +27,7 @@ landcover_2020_data = rasterio.open("reprocess_data_2/input_data/auxiliary_data/
 landcover_2021_data = rasterio.open("reprocess_data_2/input_data/auxiliary_data/land_cover/2021/reprojected_resampled/2021_landcover_finalized.tif")
 copdem_data = rasterio.open("reprocess_data_2/input_data/auxiliary_data/copdem/reprojected_resampled/copdem_90m_finalized.tif")
 biomes_data = rasterio.open("reprocess_data_2/input_data/auxiliary_data/biomes/biomes_2017/reprojected_resampled/biomes_2017_finalized.tif")
-fldk_data = "reprocess_data_2/input_data/himawari8/ten_minute/2020/01/01/0500/0430/2020_01_01_0500_0430_stacked_masked.tif"
+fldk_data = "data/himawari8/2020/01/01/0500/0430/2020_01_01_0500_0430_stacked_masked.tif"
 
 
 lat_window_data = []

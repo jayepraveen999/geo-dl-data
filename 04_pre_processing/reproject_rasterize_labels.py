@@ -22,7 +22,7 @@ def create_empty_h8_mask():
     """
     if not os.path.exists("reprocess_data_2/input_data/himawari8/empty_mask_h8_aoi_updated.tif"):
         # read aoi
-        aoi_h8 = gpd.read_file("reprocess_data_2/aoi_h8_updated.geojson")
+        aoi_h8 = gpd.read_file("02_input_data/aoi_h8_updated.geojson")
 
 
         # mask the raster with aoi extent: take a sample file from himawari8
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     create_empty_h8_mask()
 
     # read and rasterize labels
-    labels = gpd.read_file("reprocess_data_2/fire_labels/ten_minute/2020_2021_2022_combined_1703273207_ten_minute_preprocessed_finalized.geojson")
+    labels = gpd.read_file("data/fire_masks/2020_2021_2022_combined_1703273207_ten_minute_preprocessed_finalized.geojson")
     log.info("Read labels")
 
     reprojected_labels = labels.to_crs(get_h8_proj4_string())
@@ -81,9 +81,9 @@ if __name__ == "__main__":
         date_lbl = date.strftime("%Y_%m_%d_%H%M")
         log.info(f"Rasterizing {date_str}")
         # rasterize the labels
-        if not os.path.exists(f"reprocess_data_2/input_data/himawari8/ten_minute/{date_str}/{date_lbl}_non_ahi_labels.tif"):
+        if not os.path.exists(f"data/himawari8/{date_str}/{date_lbl}_non_ahi_labels.tif"):
             try:
-                with rasterio.open(f"reprocess_data_2/input_data/himawari8/ten_minute/{date_str}/{date_lbl}_non_ahi_labels.tif", "w", driver='GTiff', 
+                with rasterio.open(f"data/himawari8/{date_str}/{date_lbl}_non_ahi_labels.tif", "w", driver='GTiff', 
                         width=WIDTH, height=HEIGHT, count=COUNT, 
                         dtype=rasterio.uint8, 
                         crs=CRS, 
@@ -114,9 +114,9 @@ if __name__ == "__main__":
         date_lbl = date.strftime("%Y_%m_%d_%H%M")
         log.info(f"Rasterizing {date_str}")
         # rasterize the labels
-        if not os.path.exists(f"reprocess_data_2/input_data/himawari8/ten_minute/{date_str}/{date_lbl}_ahi_labels.tif"):
+        if not os.path.exists(f"data/himawari8/{date_str}/{date_lbl}_ahi_labels.tif"):
             try:
-                with rasterio.open(f"reprocess_data_2/input_data/himawari8/ten_minute/{date_str}/{date_lbl}_ahi_labels.tif", "w", driver='GTiff', 
+                with rasterio.open(f"data/himawari8/{date_str}/{date_lbl}_ahi_labels.tif", "w", driver='GTiff', 
                         width=WIDTH, height=HEIGHT, count=COUNT, 
                         dtype=rasterio.uint8, 
                         crs=CRS, 

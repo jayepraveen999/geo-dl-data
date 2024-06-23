@@ -1,5 +1,6 @@
 # ignore cache folder
 __pycache__/
+.python-version
 
 # ignore data folder
 data/

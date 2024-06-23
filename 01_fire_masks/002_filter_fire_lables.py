@@ -2,12 +2,23 @@ import geopandas as gpd
 from datetime import datetime
 import os
 import json
+import logging as log
+
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/01_fire_masks/filter_fire_labels.txt"  # Path to the log file
+
+log.basicConfig(
+    filename=log_file,
+    level=log.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
 
 def main(seed: int, minute: str):
 
     
-    if os.path.exists(f"reprocess_data_2/fire_labels/{minute}/2020_2021_2022_combined_{seed}_{minute}_preprocessed.geojson"):
-            print(f"reprocess_data_2/fire_labels/{minute}/2020_2021_2022_combined_{seed}_{minute}_preprocessed.geojson already exists")
+    if os.path.exists(f"data/fire_masks/2020_2021_2022_combined_{seed}_{minute}_preprocessed.geojson"):
+            log.info(f"data/fire_masks/2020_2021_2022_combined_{seed}_{minute}_preprocessed.geojson already exists")
             return 
     
     seed_data = gpd.read_file(f"reprocess_data_2/fire_labels/{minute}/2020_2021_2022_combined_{seed}.geojson")
@@ -31,26 +42,21 @@ def main(seed: int, minute: str):
 
     # check for unique dates from (365*4)*(3) = 4380 dates
     unique_dates = finalized_data["date"].nunique()
-    print(f"Out of 4380 queried DATEs, we finally have {unique_dates} DATEs after preprcoessing")
+    log.info(f"Out of 4380 queried DATEs, we finally have {unique_dates} DATEs after preprcoessing")
     unique_dates_list = finalized_data["date"].dt.strftime("%Y/%m/%d/%H%M/").unique().tolist()
-    file_path = f"reprocess_data_2/fire_labels/{minute}/unique_dates_{minute}.json"
+    file_path = f"data/fire_masks/unique_dates_{minute}.json"
 
     # Write the list to the JSON file
     with open(file_path, 'w') as json_file:
         json.dump(unique_dates_list, json_file)
         
-    print(f"Total no of fire events after finalzing the labels are {len(finalized_data)}")
-    finalized_data.to_file(f"reprocess_data_2/fire_labels/{minute}/2020_2021_2022_combined_{seed}_{minute}_preprocessed.geojson", driver="GeoJSON")
+    log.info(f"Total no of fire events after finalzing the labels are {len(finalized_data)}")
+    finalized_data.to_file(f"data/fire_masks/2020_2021_2022_combined_{seed}_{minute}_preprocessed.geojson", driver="GeoJSON")
 
 if __name__ == "__main__":
 
     # This script further cleans and finalizes the data for the seed
     seed = 1703273207
-    one_minute = 'one_minute'
-    four_minute = 'four_minute'
     ten_minute = 'ten_minute'
-    sixty_minute = 'sixty_minute'
-    # main(seed, one_minute)
-    # main(seed, four_minute)
-    # main(seed, sixty_minute)
+
     main(seed, ten_minute)

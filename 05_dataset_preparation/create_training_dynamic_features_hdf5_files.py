@@ -66,7 +66,7 @@ def write_to_hdf5(timestamp_batch, sample_size):
         timestamps_data = []
         for child_timestamp in child_timestamps:
             timestamp_str_tmp = f"{timestamp}{child_timestamp.split('/')[-2]}"
-            stacked_masked = sorted(glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp_str_tmp}/*_stacked_masked.tif"))
+            stacked_masked = sorted(glob.glob(f"data/himawari8/{timestamp_str_tmp}/*_stacked_masked.tif"))
             if stacked_masked:
                 ahi_filenames.append(stacked_masked[0])
 
@@ -94,7 +94,7 @@ def write_to_hdf5(timestamp_batch, sample_size):
 
                 
                 
-        cmsk_filename = glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{timestamp.split('/')[-2]}/cd_mask_*.tif")
+        cmsk_filename = glob.glob(f"data/himawari8/{timestamp}{timestamp.split('/')[-2]}/cd_mask_*.tif")
         if cmsk_filename:
             cmsk_file = rasterio.open(cmsk_filename[0])
             count = sample_count
@@ -115,7 +115,7 @@ def write_to_hdf5(timestamp_batch, sample_size):
                 count+=1
 
         # calculate fire_fraction
-        fire_file = glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}*_cmsk_applied_labels_with_nan.tif")
+        fire_file = glob.glob(f"data/himawari8/{timestamp}*_cmsk_applied_labels_with_nan.tif")
         if fire_file:
             fire_labels = rasterio.open(fire_file[0])
             count = sample_count
@@ -144,7 +144,7 @@ def write_to_hdf5(timestamp_batch, sample_size):
 
 
 # get the timestamps
-with open("reprocess_data_2/fire_labels/ten_minute/unique_dates_ten_minute_finalized.json") as json_file:
+with open("data/fire_masks/unique_dates_ten_minute_finalized.json") as json_file:
     timestamps = json.load(json_file)
 
 testing_timestamps = []

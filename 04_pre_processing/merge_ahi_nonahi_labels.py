@@ -5,7 +5,7 @@ import os
 import glob
 import json
 import logging as log
-log_file = f"reprocess_data_2/input_data/himawari8/ten_minute/merge_ahi_nonahi_labels_2022.txt"  # Path to the log file
+log_file = f"data/himawari8/merge_ahi_nonahi_labels_2022.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,
@@ -17,17 +17,17 @@ log.basicConfig(
 if __name__=="__main__":
 
     # using locally saved unique timestamps 
-    with open("reprocess_data_2/fire_labels/ten_minute/unique_dates_ten_minute_finalized.json") as json_file:
+    with open("data/fire_masks/unique_dates_ten_minute_finalized.json") as json_file:
         timestamps = json.load(json_file)
 
     for timestamp in timestamps:
         if timestamp.startswith("2022"):
         
             # get labels for the timestamp
-            labels_file = glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}*_non_ahi_labels.tif") + glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}*_updated_ahi_labels.tif")
+            labels_file = glob.glob(f"data/himawari8/{timestamp}*_non_ahi_labels.tif") + glob.glob(f"data/himawari8/{timestamp}*_updated_ahi_labels.tif")
             if len(labels_file) == 1:
                 # found only one file and hence this is the finaliized label. Copy the same file and rename it to finalized
-                shutil.copy(labels_file[0], f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{timestamp.replace('/','_')}finalized_labels.tif")
+                shutil.copy(labels_file[0], f"data/himawari8/{timestamp}{timestamp.replace('/','_')}finalized_labels.tif")
                 log.info(f"Found only one file for {timestamp} and hence copied the same file and renamed it to finalized")
 
             else:
@@ -54,7 +54,7 @@ if __name__=="__main__":
             
 
                     # writing the updated labels
-                    with rasterio.open(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{timestamp.replace('/','_')}finalized_labels.tif", 'w', **profile) as dst:
+                    with rasterio.open(f"data/himawari8/{timestamp}{timestamp.replace('/','_')}finalized_labels.tif", 'w', **profile) as dst:
                         dst.write(labels, 1)
                         dst.write(space_mask, 2)
 

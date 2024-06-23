@@ -12,7 +12,8 @@ import warnings
 import logging as log
 from concurrent.futures import ThreadPoolExecutor
 
-log_file = f"reprocess_data_2/fire_labels/generate_fire_labels.txt"  # Path to the log file
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/01_fire_masks/generate_fire_labels.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,
@@ -83,18 +84,18 @@ def main(fire_labels: FireLabels, aoi:dict, year:int, seed: int):
         return
     labelled_year_data = gpd.GeoDataFrame(pd.concat(fires,ignore_index=True))
     log.info(f"Total no. of fire_events for {year} are {len(labelled_year_data)}")
-    labelled_year_data.to_file(f"reprocess_data_2/fire_labels/ten_minute/{year}_labelled_data_{seed}.geojson", driver="GeoJSON")
+    labelled_year_data.to_file(f"data/fire_masks/{year}_labelled_data_{seed}.geojson", driver="GeoJSON")
 
 
 def combine_all_years(YEARS:list, seed:int):
 
     labelled_year_data_list = []
     for year in YEARS:
-        labelled_year_data_list.append(gpd.read_file(f"reprocess_data_2/fire_labels/ten_minute/{year}_labelled_data_{seed}.geojson"))
+        labelled_year_data_list.append(gpd.read_file(f"data/fire_masks/{year}_labelled_data_{seed}.geojson"))
     # merge the data for all the years
     labelled_data_all_years = gpd.GeoDataFrame(pd.concat(labelled_year_data_list,ignore_index=True))
     log.info(f"Total no. of fire_events for all years are {len(labelled_data_all_years)}")
-    labelled_data_all_years.to_file(f"reprocess_data_2/fire_labels/ten_minute/2020_2021_2022_combined_{seed}.geojson", driver="GeoJSON")
+    labelled_data_all_years.to_file(f"data/fire_masks/2020_2021_2022_combined_{seed}.geojson", driver="GeoJSON")
 
 
 if __name__ == "__main__":
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     AOI = CONFIG["AOI"]
     YEARS = CONFIG["YEARS"]
     # INTERVALS = CONFIG["INTERVALS"]
-    INTERVALS = CONFIG["INTERVALS_2"]
+    INTERVALS = CONFIG["INTERVALS"]
 
     SEED = int(time.time())
     # SEED = 1703273207 # use this for reproducibility
@@ -127,8 +128,8 @@ if __name__ == "__main__":
     # get fire labels for each year
     with ThreadPoolExecutor(max_workers=3) as executor:
         for year in YEARS:
-            if os.path.exists(f"reprocess_data_2/fire_labels/{year}_labelled_data_{SEED}.geojson"):
-                log.info(f"reprocess_data_2/fire_labels/{year}_labelled_data_{SEED}.geojson already exists")
+            if os.path.exists(f"data/fire_masks/{year}_labelled_data_{SEED}.geojson"):
+                log.info(f"data/fire_masks/{year}_labelled_data_{SEED}.geojson already exists")
                 continue
             executor.submit(main, fire_labels, AOI, year, SEED)
 

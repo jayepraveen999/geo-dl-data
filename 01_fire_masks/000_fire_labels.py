@@ -1,6 +1,7 @@
 import requests
 import datetime
 import time
+import os
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
@@ -8,7 +9,9 @@ from requests.models import Response
 from pytz import UTC
 import warnings
 import logging as log
-log_file = "generate_fire_labels.txt"  # Path to the log file
+
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/01_fire_masks/fire_labels.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,

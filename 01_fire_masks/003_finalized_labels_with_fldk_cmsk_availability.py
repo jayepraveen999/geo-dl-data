@@ -1,5 +1,6 @@
 import json
 import time
+import os
 from datetime import datetime, timedelta
 import pandas as pd
 import geopandas as gpd
@@ -8,7 +9,9 @@ from botocore.client import Config
 from botocore import UNSIGNED
 from concurrent.futures import ThreadPoolExecutor
 import logging as log
-log_file = f"finalized_labels_with_fldk_cmsk_availability.txt"  # Path to the log file
+
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/01_fire_masks/finalized_labels_with_fldk_cmsk_availability.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,
@@ -80,7 +83,7 @@ def main(timestamp:str):
 if __name__ == "__main__":
 
 
-    with open("reprocess_data_2/fire_labels/ten_minute/unique_dates_ten_minute.json") as json_file:
+    with open("data/fire_masks/unique_dates_ten_minute.json") as json_file:
         timestamps = json.load(json_file)
     
     delete_timestamps = []
@@ -92,7 +95,7 @@ if __name__ == "__main__":
     log.info(f"Got all the deleted timestamps: {delete_timestamps}")
     log.info(f"No of timestamps to be deleted: {len(delete_timestamps)}")
 
-    labels_data = gpd.read_file("reprocess_data_2/fire_labels/ten_minute/2020_2021_2022_combined_1703273207_ten_minute_preprocessed.geojson")
+    labels_data = gpd.read_file("data/fire_masks/2020_2021_2022_combined_1703273207_ten_minute_preprocessed.geojson")
     labels_data["date"] = labels_data["date"].dt.strftime("%Y/%m/%d/%H%M/")
     labels_data = labels_data[~labels_data["date"].isin(delete_timestamps)]
 
@@ -102,11 +105,11 @@ if __name__ == "__main__":
     labels_data["date"] = pd.to_datetime(labels_data["date"], format="%Y/%m/%d/%H%M/")
 
     # save the updated labels data to a new file
-    labels_data.to_file("reprocess_data_2/fire_labels/ten_minute/2020_2021_2022_combined_1703273207_ten_minute_preprocessed_finalized.geojson", driver="GeoJSON")
+    labels_data.to_file("data/fire_masks/2020_2021_2022_combined_1703273207_ten_minute_preprocessed_finalized.geojson", driver="GeoJSON")
     log.info(f"Saved the updated labels data to a new file")
 
     # save unique dates to a new file
-    file_path = f"reprocess_data_2/fire_labels/ten_minute/unique_dates_ten_minute_finalized.json"
+    file_path = f"data/fire_masks/unique_dates_ten_minute_finalized.json"
     with open(file_path, 'w') as json_file:
         json.dump(unique_dates, json_file)
 

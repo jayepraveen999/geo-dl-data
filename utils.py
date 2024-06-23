@@ -113,7 +113,7 @@ def get_h8_fldk_data(timestamp: str, path: str):
 def get_2022_timestamps():
 
     # using locally saved unique timestamps 
-    with open("reprocess_data_2/fire_labels/ten_minute/unique_dates_ten_minute_finalized.json") as json_file:
+    with open("data/fire_masks/unique_dates_ten_minute_finalized.json") as json_file:
         timestamps = json.load(json_file)
 
     # remove timestamps for 2022 due to storage constraints | processing 2022 timestamps separately

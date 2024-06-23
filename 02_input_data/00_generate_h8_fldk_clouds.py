@@ -8,7 +8,9 @@ from botocore.client import Config
 from botocore import UNSIGNED
 from concurrent.futures import ThreadPoolExecutor
 import logging as log
-log_file = f"generate_fldk_clouds.txt"  # Path to the log file
+
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/02_input_data/generate_fldk_clouds.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,
@@ -77,7 +79,7 @@ def main(timestamp:str):
     
         # Download desired files
         for file_key in data_files:
-            path = f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp.split('/')[-2]}/"
+            path = f"data/himawari8/{timestamp}{child_timestamp.split('/')[-2]}/"
             if not os.path.exists(path):
                 os.makedirs(path)
             local_file_path = path + file_key.split('/')[-1]  # Specify local download path
@@ -99,7 +101,7 @@ if __name__ == "__main__":
     # timestamps = read_timestamps(labels_path)
 
     # using locally saved unique timestamps for seed 12 
-    with open("reprocess_data_2/fire_labels/ten_minute/unique_dates_ten_minute_finalized.json") as json_file:
+    with open("data/fire_masks/unique_dates_ten_minute_finalized.json") as json_file:
         timestamps = json.load(json_file)
     log.info(f"Downloading FLDK and CMSK for {len(timestamps)} timestamps")
     t = time.time()

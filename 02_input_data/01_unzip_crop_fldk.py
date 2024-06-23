@@ -10,7 +10,9 @@ from rasterio.mask import mask
 from rasterio.io import MemoryFile
 import geopandas as gpd
 import logging as log
-log_file = f"reprocess_data_2/input_data/himawari8/ten_minute/unzip_crop_stack_fldk_2022.txt"  # Path to the log file
+
+WORKDIR = os.getcwd()
+log_file = f"{WORKDIR}/02_input_data/unzip_crop_stack_fldk_2022.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,
@@ -22,7 +24,7 @@ log.basicConfig(
 def unzip_covert_to_tiff(filenames, timestamp, child_timestamp):
     
     # check if the files are already unzipped and if yes, then skip
-    len_files = len(glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp.split('/')[-2]}/B*.tif"))
+    len_files = len(glob.glob(f"data/himawari8/{timestamp}{child_timestamp.split('/')[-2]}/B*.tif"))
     if len_files>0:
         log.info(f"files already unzipped for {timestamp}{child_timestamp.split('/')[-2]}, len_files: {len_files}")
 
@@ -45,7 +47,7 @@ def unzip_covert_to_tiff(filenames, timestamp, child_timestamp):
     log.info("loaded Scenes")
 
     # save datasets as geotiffs   
-    scene.save_datasets(writer='geotiff', dtype= np.float32, enhance= False, base_dir=f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp.split('/')[-2]}")
+    scene.save_datasets(writer='geotiff', dtype= np.float32, enhance= False, base_dir=f"data/himawari8/{timestamp}{child_timestamp.split('/')[-2]}")
     log.info("saved datasets")
 
     # after unzipping delete al .bz2 files
@@ -57,7 +59,7 @@ def unzip_covert_to_tiff(filenames, timestamp, child_timestamp):
 def stack_bands_and_mask(files, timestamp, child_timestamp):
 
     # check if the files are already stacked and masked and if yes, then skip
-    len_files = len(glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp.split('/')[-2]}/{timestamp.replace('/','_')}{child_timestamp.split('/')[-2]}_stacked_masked.tif"))
+    len_files = len(glob.glob(f"data/himawari8/{timestamp}{child_timestamp.split('/')[-2]}/{timestamp.replace('/','_')}{child_timestamp.split('/')[-2]}_stacked_masked.tif"))
     if len_files>0:
         log.info(f"files already stacked and masked for {timestamp}{child_timestamp.split('/')[-2]}")
         return
@@ -94,7 +96,7 @@ def stack_bands_and_mask(files, timestamp, child_timestamp):
     })
 
     # Save the masked raster as a new GeoTIFF file
-    with rasterio.open(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp.split('/')[-2]}/{timestamp.replace('/','_')}{child_timestamp.split('/')[-2]}_stacked_masked.tif", 'w', **masked_meta) as dst:
+    with rasterio.open(f"data/himawari8/{timestamp}{child_timestamp.split('/')[-2]}/{timestamp.replace('/','_')}{child_timestamp.split('/')[-2]}_stacked_masked.tif", 'w', **masked_meta) as dst:
         dst.write(masked_raster)
     log.info(f"saved stacked and masked raster for timestamp: {timestamp}{child_timestamp.split('/')[-2]}")
 
@@ -104,22 +106,22 @@ def process_timestamp(timestamp):
     # get the files for the timestamp
     child_timestamps = get_child_timestamps(timestamp)
     for child_timestamp in child_timestamps:
-        filenames = sorted(glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp.split('/')[-2]}/*.bz2"))
+        filenames = sorted(glob.glob(f"data/himawari8/{timestamp}{child_timestamp.split('/')[-2]}/*.bz2"))
         unzip_covert_to_tiff(filenames, timestamp, child_timestamp)
-        tif_files = sorted(glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp.split('/')[-2]}/B*.tif"))
+        tif_files = sorted(glob.glob(f"data/himawari8/{timestamp}{child_timestamp.split('/')[-2]}/B*.tif"))
         stack_bands_and_mask(tif_files,timestamp,child_timestamp)
 
 
 if __name__=="__main__":
 
     # load aoi
-    AOI_H8 = gpd.read_file("reprocess_data_2/aoi_h8_updated.geojson")
+    AOI_H8 = gpd.read_file("02_input_data/aoi_h8_updated.geojson")
     AOI_H8_GEOM = AOI_H8["geometry"]
     print(AOI_H8_GEOM)
     log.info("loaded AOI")
     
     # using locally saved unique timestamps 
-    with open("reprocess_data_2/fire_labels/ten_minute/unique_dates_ten_minute_finalized.json") as json_file:
+    with open("data/fire_masks/unique_dates_ten_minute_finalized.json") as json_file:
         timestamps = json.load(json_file)
 
     # remove timestamps for 2022 due to storage constraints | processing 2022 timestamps separately
@@ -146,9 +148,9 @@ if __name__=="__main__":
     #     # get the files for the timestamp
     #     child_timestamps = get_child_timestamps(timestamp)
     #     for child_timestamp in child_timestamps:
-    #         filenames = sorted(glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp.split('/')[-2]}/*.bz2"))
+    #         filenames = sorted(glob.glob(f"data/himawari8/{timestamp}{child_timestamp.split('/')[-2]}/*.bz2"))
     #         unzip_covert_to_tiff(filenames, timestamp, child_timestamp)
-    #         tif_files = sorted(glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp.split('/')[-2]}/B*.tif"))
+    #         tif_files = sorted(glob.glob(f"data/himawari8/{timestamp}{child_timestamp.split('/')[-2]}/B*.tif"))
     #         stack_bands_and_mask(tif_files,timestamp,child_timestamp)
     #         break
     #     break

@@ -4,7 +4,7 @@ import os
 import glob
 import json
 import logging as log
-log_file = f"reprocess_data_2/input_data/himawari8/ten_minute/update_cloud_mask_on_labels_2022.txt"  # Path to the log file
+log_file = f"data/himawari8/update_cloud_mask_on_labels_2022.txt"  # Path to the log file
 
 log.basicConfig(
     filename=log_file,
@@ -16,14 +16,14 @@ log.basicConfig(
 if __name__=="__main__":
 
     # using locally saved unique timestamps 
-    with open("reprocess_data_2/fire_labels/ten_minute/unique_dates_ten_minute_finalized.json") as json_file:
+    with open("data/fire_masks/unique_dates_ten_minute_finalized.json") as json_file:
         timestamps = json.load(json_file)
 
     for timestamp in timestamps:
         if timestamp.startswith("2022"):
 
             # get cloud mask for the timestamp
-            cloud_mask_file = glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{timestamp.split('/')[-2]}/cd_mask_*.tif")
+            cloud_mask_file = glob.glob(f"data/himawari8/{timestamp}{timestamp.split('/')[-2]}/cd_mask_*.tif")
             if len(cloud_mask_file) == 0:
                 log.info(f"Missing cloud mask for {timestamp}")
                 continue
@@ -33,7 +33,7 @@ if __name__=="__main__":
                 cloud_mask_2 = rasterio.open(cloud_mask_file[0]).read(2)
 
             # get labels for the timestamp
-            labels_file = glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}*_finalized_labels.tif")
+            labels_file = glob.glob(f"data/himawari8/{timestamp}*_finalized_labels.tif")
             if len(labels_file) == 0:
                 log.info(f"Missing labels for {timestamp}")
                 continue
@@ -41,7 +41,7 @@ if __name__=="__main__":
             elif len(labels_file) > 0:
 
                 # check if the labels are already processed
-                if not os.path.exists(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}/{timestamp.replace('/','_')}_cmsk_applied_labels.tif"):
+                if not os.path.exists(f"data/himawari8/{timestamp}/{timestamp.replace('/','_')}_cmsk_applied_labels.tif"):
                     # reading the labels
                     with rasterio.open(labels_file[0]) as src:
                         labels = src.read(1)
@@ -62,7 +62,7 @@ if __name__=="__main__":
 
 
                     # writing the labels with cloud mask applied
-                    with rasterio.open(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}/{timestamp.replace('/','_')}_cmsk_applied_labels.tif", "w", **labels_meta) as dest:
+                    with rasterio.open(f"data/himawari8/{timestamp}/{timestamp.replace('/','_')}_cmsk_applied_labels.tif", "w", **labels_meta) as dest:
                         dest.write(updated_labels_2_cmsk, indexes=1)
                         dest.write(updated_labels_4_cmsk, indexes=2)
                         dest.write(space_mask, indexes=3)

@@ -19,7 +19,7 @@ from pre_processing.reproject_rasterize_labels import create_empty_h8_mask
 def create_input_ahi_cmsk_h8_fp_data(window, fire: gpd.GeoDataFrame):
     # create the input_ahi_data with band 0,4 for the fire using the timestamps
     # Convert start and end date strings to datetime objects
-    base_dir = "reprocess_data_2/input_data/himawari8/ten_minute/"
+    base_dir = "data/himawari8/"
     start_date_obj = datetime.strptime(fire["ignition_date"], "%Y/%m/%d/%H%M/")
     end_date_obj = datetime.strptime(fire["extinguish_date"], "%Y/%m/%d/%H%M/")
 

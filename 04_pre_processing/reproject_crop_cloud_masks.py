@@ -47,7 +47,7 @@ def main(cloud_data, timestamp, child_timestamp):
     })
 
     # Write the masked raster to the final output file
-    with rasterio.open(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{child_timestamp}/cd_mask_{timestamp.replace('/','_')}_{child_timestamp}.tif", "w", **masked_meta) as dest:
+    with rasterio.open(f"data/himawari8/{timestamp}{child_timestamp}/cd_mask_{timestamp.replace('/','_')}_{child_timestamp}.tif", "w", **masked_meta) as dest:
         dest.write(masked_raster)
     
     log.info(f"Succesfully created the cloud mask raster for {timestamp}{child_timestamp}")
@@ -64,16 +64,16 @@ if __name__ == "__main__":
     FLDK_SPACE_MASK = EMPTY_RASTER.read(2)
 
 
-    AOI_H8 = gpd.read_file("reprocess_data_2/aoi_h8_updated.geojson")
+    AOI_H8 = gpd.read_file("02_input_data/aoi_h8_updated.geojson")
     AOI_H8_GEOM = AOI_H8["geometry"]
 
     # using locally saved unique timestamps for seed 12 
-    with open("reprocess_data_2/fire_labels/ten_minute/unique_dates_ten_minute_finalized.json") as json_file:
+    with open("data/fire_masks/unique_dates_ten_minute_finalized.json") as json_file:
         timestamps = json.load(json_file)
     
     # timestamps =  [datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").strftime("%Y/%m/%d/%H%M/") for timestamp in timestamps]
     for timestamp in timestamps:
-        file = glob.glob(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{timestamp.split('/')[-2]}/*.nc")
+        file = glob.glob(f"data/himawari8/{timestamp}{timestamp.split('/')[-2]}/*.nc")
         if len(file) == 0:
             log.info(f"No cloud files found in the directory {timestamp}{timestamp.split('/')[-2]}")
             continue
@@ -81,7 +81,7 @@ if __name__ == "__main__":
             log.info(f"More than two cloud files found in the directory {timestamp}{timestamp.split('/')[-2]}")
             continue
         else:
-            if not os.path.exists(f"reprocess_data_2/input_data/himawari8/ten_minute/{timestamp}{timestamp.split('/')[-2]}/cd_mask_{timestamp.replace('/','_')}_{timestamp.split('/')[-2]}.tif"):
+            if not os.path.exists(f"data/himawari8/{timestamp}{timestamp.split('/')[-2]}/cd_mask_{timestamp.replace('/','_')}_{timestamp.split('/')[-2]}.tif"):
                 log.info(f"Processing cloud file {file[0]}")
                 cloud_data = xr.open_dataset(file[0])
                 main(cloud_data, timestamp, timestamp.split('/')[-2])
