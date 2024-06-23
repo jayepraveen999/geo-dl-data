@@ -13,7 +13,7 @@ from datetime import datetime
 from shapely.geometry import shape, MultiPolygon
 from rasterio.features import rasterize, geometry_mask
 from utils import get_h8_proj4_string, get_2022_timestamps
-from reproject_rasterize_labels import create_empty_h8_mask
+from pre_processing.reproject_rasterize_labels import create_empty_h8_mask
 
 
 def create_input_ahi_cmsk_h8_fp_data(window, fire: gpd.GeoDataFrame):
@@ -67,22 +67,6 @@ def create_h5py(bushfire_gdf: gpd.GeoDataFrame, h5py_path: str):
     
     with h5py.File(h5py_path, 'a') as f:
 
-        # f.create_dataset("fire_id", data=np.zeros((0,1)), chunks=(1,1), maxshape=(None,1), compression="lzf")
-        # f.create_dataset("fire_type", data=np.zeros((0,1)), dtype=np.str_, chunks=(1,1), maxshape=(None,1))
-        # f.create_dataset("ignition_date", data=np.zeros((0,1)), chunks=(1,1), maxshape=(None,1))
-        # f.create_dataset("extinguish_date", data=np.zeros((0,1)), chunks=(1,1), maxshape=(None,1))
-        # f.create_dataset("area_ha", data=np.zeros((0,1)), chunks=(1,1), maxshape=(None,1))
-        # f.create_dataset("fire_life",  data=np.zeros((0,1)), chunks=(1,1), maxshape=(None,1))
-
-        # f.create_dataset("raster_window_id", data=np.zeros((0,1)), chunks=(1,1), maxshape=(None,1), compression="lzf")
-        # f.create_dataset("bushfire_label_data", data=np.zeros((0,256,256)), chunks=(1,256,256), maxshape=(None,256,256), compression="lzf")
-        # f.create_dataset("ahi_data", data=np.zeros((0,6,256,256)), chunks=(1,6,256,256), maxshape=(None,6,256,256), compression="lzf")
-        # f.create_dataset("cloud_mask_binary", data=np.zeros((0,256,256)), chunks=(1,256,256), maxshape=(None,256,256), compression="lzf")
-        # f.create_dataset("h8_fire_product_data", data=np.zeros((0,256,256)), chunks=(1,256,256), maxshape=(None,256,256), compression="lzf")
-        # f.create_dataset("timestamps", data=np.zeros((0,1)), chunks=(1,1), maxshape=(None,1), compression="lzf")
-
-
-        # create empty lists for all the datasets so we will append the array data to these lists and later stack them
         fire_id_lists = []
         raster_window_id_lists = []
         fire_type_lists = []
@@ -170,18 +154,6 @@ def create_h5py(bushfire_gdf: gpd.GeoDataFrame, h5py_path: str):
                     print(f"Error rasterizing overlapping fires{ob_id}: {e}")
                     continue
 
-            #  now that we have the rasterized data for current fire and overlapping fires we will now do spatial intersection with the raster windows
-
-            # group = f.create_group(str(fire["OBJECTID"]))
-            # # add the fire data to the group
-            # group.create_dataset("OBJECTID", data=str(fire["OBJECTID"]))
-            # group.create_dataset("fire_type", data=str(fire["fire_type"]))
-            # group.create_dataset("ignition_date", data=str(fire["ignition_date"]))
-            # group.create_dataset("extinguish_date", data=str(fire["extinguish_date"]))
-            # group.create_dataset("area_ha", data=fire["area_ha"])
-            # group.create_dataset("fire_life", data=str(fire["fire_life"]))
-
-            # get the raster window ids for the current fire
             fire_data = rasterio.open(f"tmp/{ob_id}/current_fire.tif")
             overlapping_fires_data = rasterio.open(f"tmp/{ob_id}/overlapping_fires.tif")
 
@@ -222,55 +194,7 @@ def create_h5py(bushfire_gdf: gpd.GeoDataFrame, h5py_path: str):
                     timestamps_index_lists.append(timestamps_index)
 
 
-                    #  append all the data to the dataset by resizing all the datasets and adding the new data
-                    # f["fire_id"].resize(f["fire_id"].shape[0] + fire_id.shape[0], axis=0)
-                    # f["fire_id"][-fire_id.shape[0]:] = fire_id
-
-                    # f["raster_window_id"].resize(f["raster_window_id"].shape[0] + raster_window_id.shape[0], axis=0)
-                    # f["raster_window_id"][-fire_id.shape[0]:] = raster_window_id
-
-                    # f["ahi_data"].resize(f["ahi_data"].shape[0] + ahi_data.shape[0], axis=0)
-                    # f["ahi_data"][-ahi_data.shape[0]:] = ahi_data
-
-                    # f["bushfire_label_data"].resize(f["bushfire_label_data"].shape[0] + bushfire_label_data.shape[0], axis=0)
-                    # f["bushfire_label_data"][-bushfire_label_data.shape[0]:] = bushfire_label_data
-
-                    # f["h8_fire_product_data"].resize(f["h8_fire_product_data"].shape[0] + h8_fire_product_data.shape[0], axis=0)
-                    # f["h8_fire_product_data"][-h8_fire_product_data.shape[0]:] = h8_fire_product_data
-
-                    # f["cloud_mask_binary"].resize(f["cloud_mask_binary"].shape[0] + cloud_mask_binary.shape[0], axis=0)
-                    # f["cloud_mask_binary"][-cloud_mask_binary.shape[0]:] = cloud_mask_binary
-
-                    # f["timestamps"].resize(f["timestamps"].shape[0] + timestamps.shape[0], axis=0)
-                    # f["timestamps"][-timestamps.shape[0]:] = timestamps
-
-                    # f["fire_type"].resize(f["fire_type"].shape[0] + fire_type.shape[0], axis=0)
-                    # f["fire_type"][-fire_type.shape[0]:] = fire_type
-
-                    # f["ignition_date"].resize(f["ignition_date"].shape[0] + ignition_date.shape[0], axis=0)
-                    # f["ignition_date"][-ignition_date.shape[0]:] = ignition_date
-
-                    # f["extinguish_date"].resize(f["extinguish_date"].shape[0] + extinguish_date.shape[0], axis=0)
-                    # f["extinguish_date"][-extinguish_date.shape[0]:] = extinguish_date
-
-                    # f["area_ha"].resize(f["area_ha"].shape[0] + area_ha.shape[0], axis=0)
-                    # f["area_ha"][-area_ha.shape[0]:] = area_ha
-
-                    # f["fire_life"].resize(f["fire_life"].shape[0] + fire_life.shape[0], axis=0)
-                    # f["fire_life"][-fire_life.shape[0]:] = fire_life
-
-
-
                     print(f"Added data for fire {ob_id} in window {window[0]}_{window[1]}")
-
-                    # # create a subgroup for the window
-                    # subgroup = group.create_group(f"{ob_id}_window_{window[0]}_{window[1]}")
-                    # subgroup.create_dataset("raster_window_id", data=np.array([window_id]), compression="lzf" )
-                    # subgroup.create_dataset("bushfire_label_data", data=window_data, compression="lzf" )
-                    # subgroup.create_dataset("ahi_data", data=ahi_data, compression="lzf" )
-                    # subgroup.create_dataset("cloud_mask_binary", data=cloud_mask_binary, compression="lzf" )
-                    # subgroup.create_dataset("h8_fire_product_data", data=h8_fire_product_data, compression="lzf" )
-                    # subgroup.create_dataset("timestamps", data=np.array(available_dates, dtype = 'S'))
 
             # remove the tmp folder
             # shutil.rmtree(f"tmp/{ob_id}")

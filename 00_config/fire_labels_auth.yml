@@ -1,9 +1,6 @@
 API_KEY : "ot_a85a24bf4c2ea6f16dd9.gDOTyEoHSPmqXXCrPeHfng" 
 
-# Australia and Tasmania AOI
-# AOI : [112.1,-10.5,154.1,-43.9]
-
-# AOI covering more countries other than Australia and Tasmania
+# AOI covering more different geographical areas
 AOI : [100.0, 48.0, 165.0, -60.0]
 AOI_WKT : "POLYGON((100.0 48.0, 165.0 48.0, 165.0 -60.0, 100.0 -60.0, 100.0 48.0))"
 

@@ -6,7 +6,7 @@ import random
 import argparse
 import pandas as pd
 import geopandas as gpd
-from fire_labels import FireLabels
+from fire_masks.fire_labels import FireLabels
 from utils import get_time_series, get_random_timestamps
 import warnings
 import logging as log
@@ -115,8 +115,9 @@ if __name__ == "__main__":
     # INTERVALS = CONFIG["INTERVALS"]
     INTERVALS = CONFIG["INTERVALS_2"]
 
-    # SEED = int(time.time())
-    SEED = 1703273207
+    SEED = int(time.time())
+    # SEED = 1703273207 # use this for reproducibility
+
     random.seed(SEED)
     log.info(f"SEED used is {SEED}")
 
