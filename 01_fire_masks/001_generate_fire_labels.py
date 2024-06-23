@@ -6,7 +6,7 @@ import random
 import argparse
 import pandas as pd
 import geopandas as gpd
-from fire_masks.fire_labels import FireLabels
+from fire_labels import FireLabels
 from utils import get_time_series, get_random_timestamps
 import warnings
 import logging as log
