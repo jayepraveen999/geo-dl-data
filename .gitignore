@@ -1,0 +1,16 @@
+# ignore cache folder
+__pycache__/
+
+# ignore data folder
+data/
+reprocess_data/
+reprocess_data_2/
+train_test_split_data_files/
+
+# ignore prototypes folder
+prototypes/
+
+# ignore vscodesettings
+.vscode/
+
+tmp/
