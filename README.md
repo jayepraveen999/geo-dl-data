@@ -2,7 +2,7 @@
 
 This project is structured to manage and process all required data for [geo-dl-model](https://github.com/jayepraveen999/geo-dl-model). The project is organized into several directories, each with a specific purpose. All the files start with a prefix number and executed accordingly. The output of these files will be saved in data/ folder. 
 
-The `data/` folder is not commited and also the fire_masks can't be generated as it needs the token to access the external database used for this study (OroraTech Gmbh). Henceforth all the other files cannot be executed as well because they are dependent on fire_masks. This repo serves mostly to understand the approach we followed to create the dataset for [geo-dl-model](https://github.com/jayepraveen999/geo-dl-model). 
+The `data/` folder is not commited and also the fire_masks can't be generated as it needs the token to access the external database used for this study (OroraTech Gmbh). Henceforth all the other files cannot be executed as well because they are dependent on fire_masks. This repo serves mostly to understand the approach we followed to create the dataset for [geo-dl-model](https://github.com/jayepraveen999/geo-dl-model). All the processed data files can still be accessed to run the model and they are stored in [google drive](https://drive.google.com/drive/folders/1J7VqqCQds-x5ulbs3LTF7SPhC3Cy9BuZ)
 
 ## Project Structure
 
